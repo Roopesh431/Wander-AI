@@ -1,39 +1,83 @@
+
 export default function AttractionCard({ attraction }) {
-  const { name, type, ai } = attraction
+  const { name, type, ai, lat, lon, website, fee } = attraction
+
+  const mapUrl =
+    lat != null && lon != null
+      ? `https://www.google.com/maps?q=${lat},${lon}`
+      : null
 
   return (
-    <div className="bg-white/10 border border-white/20 rounded-2xl p-5 
-                    hover:bg-white/15 transition flex flex-col">
-      <div className="flex items-start justify-between mb-3">
+    <article className="flex h-full flex-col rounded-2xl border border-white/15 bg-white/10 p-5 transition hover:-translate-y-1 hover:bg-white/15">
+      <div className="mb-3 flex items-start justify-between gap-3">
         <h3 className="text-xl font-bold leading-tight">{name}</h3>
-        <span className="text-xs bg-amber-500/30 text-amber-300 px-2 py-1 rounded-full whitespace-ml capitalize">
-          {type}
+
+        <span className="shrink-0 rounded-full bg-amber-500/20 px-3 py-1 text-xs capitalize text-amber-300">
+          {(type || 'attraction').replaceAll('_', ' ')}
         </span>
       </div>
 
-      <p className="text-slate-300 text-sm mb-4 flex-1">
-        {ai?.description || 'No description available.'}
+      <p className="mb-5 flex-1 text-sm leading-6 text-slate-300">
+        {ai?.description || 'A local place to explore. More details are unavailable right now.'}
       </p>
 
-      <div className="space-y-2 text-sm">
-        <p>💰 <span className="text-slate-400">Entry:</span> {ai?.entry_price || '—'}</p>
-        <p>🕐 <span className="text-slate-400">Best time:</span> {ai?.best_time || '—'}</p>
-        {ai?.tips && <p>💡 <span className="text-slate-400">Tip:</span> {ai.tips}</p>}
+      <div className="space-y-3 text-sm">
+        <p>
+          <span className="text-slate-400">🎟️ Entry fee: </span>
+          {ai?.entry_price || (fee === 'no' ? 'Free (according to map data)' : 'Not verified')}
+        </p>
+
+        <p>
+          <span className="text-slate-400">🕐 Best time: </span>
+          {ai?.best_time || 'Not available'}
+        </p>
+
+        {ai?.tips && (
+          <p>
+            <span className="text-slate-400">💡 Visitor tip: </span>
+            {ai.tips}
+          </p>
+        )}
+
         {ai?.transport?.length > 0 && (
-          <p>🚌 <span className="text-slate-400">Getting there:</span> {ai.transport.join(' · ')}</p>
+          <div>
+            <p className="mb-1 text-slate-400">🚌 Transport suggestions</p>
+            <ul className="list-inside list-disc space-y-1">
+              {ai.transport.map((option, index) => (
+                <li key={`${option}-${index}`}>{option}</li>
+              ))}
+            </ul>
+          </div>
         )}
       </div>
 
-      {attraction.lat && attraction.lon && (
-        <a
-          href={`https://www.google.com/maps?q=attraction.lat,{attraction.lat},attraction.lat,{attraction.lon}`}
-          target="_blank"
-          rel="noreferrer"
-          className="mt-4 text-center text-amber-400 hover:text-amber-300 text-sm font-semibold"
-        >
-          📍 View on Map →
-        </a>
-      )}
-    </div>
+      <div className="mt-5 flex flex-wrap gap-3 border-t border-white/10 pt-4">
+        {mapUrl && (
+          <a
+            href={mapUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-sm font-semibold text-amber-400 hover:text-amber-300"
+          >
+            📍 Open in Maps ↗
+          </a>
+        )}
+
+        {website && (
+          <a
+            href={website}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-sm font-semibold text-sky-300 hover:text-sky-200"
+          >
+            Official website ↗
+          </a>
+        )}
+      </div>
+
+      <p className="mt-3 text-xs text-slate-500">
+        AI-generated information may be inaccurate. Verify ticket prices and transport with official sources.
+      </p>
+    </article>
   )
 }
